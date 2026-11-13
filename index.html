@@ -1,0 +1,605 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Absensi Pengajian Kebon Kopi</title>
+<!-- Firebase SDK (Compat Version) -->
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+<style>
+:root{--bg:#F6EFE6;--card:#FFF9F0;--ink:#2B1D14;--mut:#6B5646;--ac:#A8601F;--acink:#fff;--line:#E2D3C0;--H:#4F7A5A;--I:#B98A1F;--S:#3F7CAC;--A:#B5483A;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1F1510;--card:#2E2018;--ink:#F6EFE6;--mut:#BBA692;--ac:#E8A560;--acink:#2B1D14;--line:#4A3626;--H:#6FA47C;--I:#D9A93A;--S:#6FA3D0;--A:#D9705F}}
+:root[data-theme="dark"]{--bg:#1F1510;--card:#2E2018;--ink:#F6EFE6;--mut:#BBA692;--ac:#E8A560;--acink:#2B1D14;--line:#4A3626;--H:#6FA47C;--I:#D9A93A;--S:#6FA3D0;--A:#D9705F}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding-bottom:84px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--ac);z-index:10}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;background:var(--ac);color:var(--acink);padding:12px 16px;display:flex;justify-content:space-between;align-items:center}
+header h1{margin:0;font-size:17px;font-weight:700}
+header small{opacity:.85;font-size:12px;display:block}
+.badge-status{font-size:11px;background:rgba(0,0,0,.18);color:var(--acink);padding:4px 8px;border-radius:20px;display:inline-flex;align-items:center;gap:6px;font-weight:600;white-space:nowrap}
+.badge-dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+main{max-width:900px;margin:0 auto;padding:16px}
+h2{font-size:20px;margin:4px 0 12px}h3{font-size:16px;margin:0 0 8px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:14px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:14px}
+.stat b{display:block;font-size:30px;color:var(--ac)}.stat span,.mut{color:var(--mut);font-size:14px}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+.donut{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.donut svg{width:140px;height:140px;flex:none}
+.lg div{display:flex;align-items:center;gap:8px;font-size:14px;margin:3px 0}
+.lg i{width:12px;height:12px;border-radius:50%;display:inline-block}
+nav{position:fixed;left:0;right:0;bottom:0;z-index:9;display:flex;background:var(--card);border-top:1px solid var(--line);padding:6px 4px calc(6px + env(safe-area-inset-bottom,0px))}
+nav button{flex:1;background:none;border:0;color:var(--mut);font:inherit;font-size:12px;padding:6px 2px;border-radius:10px}
+nav button.on{color:var(--ac);font-weight:700;background:var(--bg)}
+nav button span{display:block;font-size:20px}
+button,input,select{font:inherit;color:var(--ink)}
+input,select{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg)}
+.btn{background:var(--ac);color:var(--acink);border:0;border-radius:10px;padding:11px 16px;font-weight:700;cursor:pointer}
+.btn.o{background:none;color:var(--ac);border:1px solid var(--ac)}.btn.r{background:var(--A);color:#fff}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px}.row>*{flex:1 1 auto}.row .btn{flex:none}
+.tabs{display:flex;gap:8px;margin-bottom:10px}.tabs button{flex:1;padding:10px;border-radius:10px;border:1px solid var(--line);background:var(--card);font-weight:600;cursor:pointer}.tabs button.on{background:var(--ac);color:var(--acink);border-color:var(--ac)}
+.item{display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.item .nm{flex:1 1 150px;min-width:0;overflow-wrap:anywhere}
+.st{display:flex;gap:6px}.st button{width:42px;height:42px;border-radius:10px;border:1px solid var(--line);background:var(--bg);font-weight:700;cursor:pointer}
+.st button.on[data-s="H"]{background:var(--H);color:#fff}.st button.on[data-s="I"]{background:var(--I);color:#fff}.st button.on[data-s="S"]{background:var(--S);color:#fff}.st button.on[data-s="A"]{background:var(--A);color:#fff}
+.scroll{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:14px;min-width:460px}th,td{padding:8px 6px;text-align:left;border-bottom:1px solid var(--line)}
+.pin{max-width:320px;margin:18vh auto 0;text-align:center}.pin input{text-align:center;font-size:24px;letter-spacing:8px}
+.err{color:var(--A);min-height:22px}.hide{display:none}
+.alert-box{padding:10px 14px;border-radius:10px;margin-bottom:12px;font-size:13px}
+.alert-warning{background:#FFF3CD;color:#856404;border:1px solid #FFEEBA}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+// ==================== FIREBASE CONFIGURATION ====================
+const firebaseConfig = {
+  apiKey: "AIzaSyCJpMhV2ZERVzH-xuugqJ53vhRgd-0jOKg",
+  authDomain: "absensi-kebon-kopi.firebaseapp.com",
+  projectId: "absensi-kebon-kopi",
+  storageBucket: "absensi-kebon-kopi.firebasestorage.app",
+  messagingSenderId: "795501091401",
+  appId: "1:795501091401:web:061b6fca6976e86f637d98",
+  measurementId: "G-NFM5E19L0Z"
+};
+
+let db = null;
+let firestoreOnline = false;
+let cloudSyncState = { status: "connecting", message: "Menghubungkan..." };
+
+try {
+  if (typeof firebase !== "undefined") {
+    firebase.initializeApp(firebaseConfig);
+    db = firebase.firestore();
+    // Enable offline persistence
+    db.enablePersistence({ synchronizeTabs: true }).catch(err => {
+      console.warn("Firestore offline persistence notice:", err.code);
+    });
+  }
+} catch (e) {
+  console.error("Firebase init error:", e);
+}
+
+// ==================== INITIAL DATA & STATE ====================
+const PIN = "354313", KEY = "kebonkopi_v1";
+const LK = `Agung Wibowo|Abdu Naaser|Addi Suradi|Agus Novel Abdillah|Agus Setiawan|Alghofar Aulia Reagan|Budi Santoso|Darman|David Hamid Abdillah Prawiradireja|Faldi Azka Ghifary|Frediansyah Firdaus|Ruswandi|H. Pardjito Harso Pawiro|Hamdani|Ilham Pamungkas Ramdhan|Imam Nurfaizi Aziz|Imam Subhi|Irfan Nurul Huda|Khabieb|Khavid Hudiya Fathkurozi|Lukman Firmansyah|Michael Ali-Al G|Muhammad Bagas Kurniawan|Muhammad Falahaen Jiddan|Muhammad Rizal Fathoni|Muhammad Yusuf Haka|Ngatijo|Nur Komarroni|Nurachman|Ridho Fraja Alfirdaus|Rofiq Aristya Dewa|Ruswanto|Sridono|Sriyanto|Sultan Fadillah Akbar|Sumarsudi|Sumaryono|Wahyu Sudrajat|Yahya Nuur Hidayat|Yazidu Imaduddin|Bagas|Abdul Rahman|Wisnu`.split("|");
+const PK = `Afifah/Bu Marsudi|Astri Septiyani|Basitha Septia Wibowo|Dewi Prihatini/Wiwi|Eka Susilowati|Engkar Yati/Emak|Engkom Rohayati/Kokom|Entat Srinartati|Fahmi Harismaini|Fitri Hildayanti|Hj Djumikem|Iis Kusti Hastuti|Ita Nurhanifah/Aan|Kemijem|Lukluk Mufattahah|Mahmudah|Maryanah|Maryatun|Maryuni|Nurul Hidayati|Nuryeti|Nyai Senah|Pupu Purnama|Reza Eka Utami|Rusmiati|Shelly Imelda Husada Imas|Siti Noor Aisyah (Inggih)|Suci Mar'atul Ulfa|Sudiyati|Sukamtini|Sukiyah (Bunga)|Sumaryati Soemino|Susiati|Tri|Tsania Nur Salima|Ummu Habibah|Yulianti|Bu Suriyah|Bu Sugiarti|Bu Maya (Kofom)`.split("|");
+
+let S = loadLocal() || {
+  j: [
+    ...LK.map((n, i) => ({ id: "l" + i, n, g: "L", on: 1, idx: i })),
+    ...PK.map((n, i) => ({ id: "p" + i, n, g: "P", on: 1, idx: 1000 + i }))
+  ],
+  s: [],
+  a: {},
+  nid: 1
+};
+
+let ui = { pg: "dash", g: "L", q: "", sid: null, del: null, wk: null, mo: null, auth: false };
+
+function loadLocal() {
+  try { return JSON.parse(localStorage.getItem(KEY)); } catch (e) { return null; }
+}
+
+function saveLocal() {
+  try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {}
+}
+
+try { ui.auth = sessionStorage.getItem("kk_ok") === "1"; } catch (e) {}
+
+const $ = s => document.querySelector(s);
+const esc = t => String(t).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const pad = n => String(n).padStart(2, "0");
+const ymd = d => d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate());
+const D = s => new Date(s + "T00:00");
+const wk = s => { const d = D(s); d.setDate(d.getDate() - (d.getDay() + 6) % 7); return ymd(d); };
+const fd = s => D(s).toLocaleDateString("id-ID", { day: "numeric", month: "short" });
+const fdl = s => D(s).toLocaleDateString("id-ID", { weekday: "short", day: "numeric", month: "short", year: "numeric" });
+const wlab = k => { const e = D(k); e.setDate(e.getDate() + 6); return fd(k) + " – " + fd(ymd(e)); };
+const mlab = k => D(k + "-01").toLocaleDateString("id-ID", { month: "long", year: "numeric" });
+const COL = { H: "var(--H)", I: "var(--I)", S: "var(--S)", A: "var(--A)" };
+const NM = { H: "Hadir", I: "Izin", S: "Sakit", A: "Alpa" };
+const act = () => S.j.filter(x => x.on);
+const sess = () => [...S.s].sort((a, b) => a.d < b.d ? 1 : -1);
+const rec = s => S.a[s.id] && Object.keys(S.a[s.id]).length;
+
+function stats(list, who) {
+  const c = { H: 0, I: 0, S: 0, A: 0 };
+  list.filter(rec).forEach(s => who.forEach(j => c[S.a[s.id][j.id] || "A"]++));
+  const t = c.H + c.I + c.S + c.A;
+  return { c, t, p: t ? Math.round(c.H * 100 / t) : 0 };
+}
+
+function donut(st) {
+  let off = 25, seg = "";
+  if (st.t) {
+    ["H", "I", "S", "A"].forEach(k => {
+      const p = st.c[k] * 100 / st.t;
+      if (p > 0) {
+        seg += `<circle cx="21" cy="21" r="15.9155" fill="none" stroke="${COL[k]}" stroke-width="6" stroke-dasharray="${p} ${100 - p}" stroke-dashoffset="${off}"/>`;
+        off -= p;
+      }
+    });
+  }
+  return `<div class="donut"><svg viewBox="0 0 42 42" role="img" aria-label="Diagram persentase kehadiran ${st.p}%"><circle cx="21" cy="21" r="15.9155" fill="none" stroke="var(--line)" stroke-width="6"/>${seg}<text x="21" y="23" text-anchor="middle" font-size="8" font-weight="700" fill="var(--ink)">${st.t ? st.p + "%" : "–"}</text></svg><div class="lg">${["H", "I", "S", "A"].map(k => `<div><i style="background:${COL[k]}"></i>${NM[k]} ${st.t ? Math.round(st.c[k] * 100 / st.t) : 0}%</div>`).join("")}</div></div>`;
+}
+
+function updateSyncUI(status, text, detail) {
+  cloudSyncState = { status, message: text, detail };
+  const badge = $("#sync-status");
+  if (!badge) return;
+  const col = status === "online" ? "#6FA47C" : status === "offline" ? "#D9A93A" : "#D9705F";
+  badge.innerHTML = `<span class="badge-dot" style="background:${col}"></span><span>${text}</span>`;
+  badge.title = detail || text;
+}
+
+// ==================== FIRESTORE SYNC & SEED ====================
+let isInitialSyncDone = false;
+
+function initFirestoreSync() {
+  if (!db) {
+    updateSyncUI("offline", "Lokal Saja", "Firebase SDK belum termuat");
+    return;
+  }
+
+  // 1. Sinkronisasi Data Jamaah
+  db.collection("jamaah").onSnapshot(snapshot => {
+    if (!snapshot.empty) {
+      const list = [];
+      snapshot.forEach(doc => list.push(doc.data()));
+      list.sort((a, b) => (a.idx ?? 0) - (b.idx ?? 0));
+      S.j = list;
+      saveLocal();
+      if (ui.auth) page();
+      updateSyncUI("online", "Cloud Aktif", "Tersambung ke Cloud Firebase");
+    } else {
+      // Jika Firestore masih kosong, masukkan data awal jamaah
+      seedInitialJamaahToFirestore();
+    }
+  }, err => {
+    console.warn("Firestore jamaah listener:", err);
+    if (err.code === "permission-denied") {
+      updateSyncUI("error", "Izin Ditolak", "Aturan Firestore belum mengizinkan baca/tulis. Cek Rules Firestore di Firebase Console.");
+    } else {
+      updateSyncUI("offline", "Mode Offline", "Menggunakan cache lokal");
+    }
+  });
+
+  // 2. Sinkronisasi Daftar Pengajian
+  db.collection("pengajian").onSnapshot(snapshot => {
+    const list = [];
+    snapshot.forEach(doc => list.push(doc.data()));
+    list.sort((a, b) => a.d < b.d ? 1 : -1);
+    S.s = list;
+    saveLocal();
+    if (ui.auth) page();
+  }, err => console.warn("Firestore pengajian listener:", err));
+
+  // 3. Sinkronisasi Catatan Absensi
+  db.collection("absensi").onSnapshot(snapshot => {
+    const att = {};
+    snapshot.forEach(doc => {
+      const d = doc.data() || {};
+      // Mendukung format flat dan format lama jika ada
+      const records = (d.a && typeof d.a === "object") ? { ...d, ...d.a } : { ...d };
+      delete records.a;
+      const cleanRecords = {};
+      for (const k in records) {
+        if (["H", "I", "S", "A"].includes(records[k])) {
+          cleanRecords[k] = records[k];
+        }
+      }
+      att[doc.id] = cleanRecords;
+    });
+    S.a = att;
+    saveLocal();
+    if (ui.pg === "abs") {
+      lst();
+    } else if (ui.auth) {
+      page();
+    }
+  }, err => console.warn("Firestore absensi listener:", err));
+
+  window.addEventListener("online", () => updateSyncUI("online", "Cloud Aktif", "Tersambung kembali"));
+  window.addEventListener("offline", () => updateSyncUI("offline", "Mode Offline", "Koneksi terputus"));
+}
+
+async function seedInitialJamaahToFirestore() {
+  if (!db) return;
+  try {
+    const batch = db.batch();
+    const initialJamaah = [
+      ...LK.map((n, i) => ({ id: "l" + i, n, g: "L", on: 1, idx: i })),
+      ...PK.map((n, i) => ({ id: "p" + i, n, g: "P", on: 1, idx: 1000 + i }))
+    ];
+    initialJamaah.forEach(item => {
+      const ref = db.collection("jamaah").doc(item.id);
+      batch.set(ref, item);
+    });
+    await batch.commit();
+    console.log("Inisialisasi 83 data jamaah ke Cloud Firestore berhasil!");
+    updateSyncUI("online", "Cloud Aktif", "Data jamaah berhasil tersimpan ke Firebase");
+  } catch (e) {
+    console.error("Gagal inisialisasi ke Firestore:", e);
+    if (e.code === "permission-denied") {
+      updateSyncUI("error", "Rules Ditolak", "Aktifkan Test Mode pada Rules Cloud Firestore Anda.");
+    }
+  }
+}
+
+// ==================== UI RENDERING ====================
+function setup() {
+  if (ui.auth) return shell();
+  $("#app").innerHTML = `<div class="pin card">
+    <h2>Absensi Pengajian<br>Kelompok Kebon Kopi</h2>
+    <p class="mut">Masukkan PIN admin</p>
+    <input id="pin" type="password" inputmode="numeric" maxlength="6" autocomplete="off">
+    <p class="err" id="err"></p>
+    <button class="btn" data-a="login">Masuk</button>
+  </div>`;
+}
+
+function shell() {
+  const tabs = [["dash", "📊", "Dashboard"], ["abs", "✅", "Absensi"], ["jam", "👥", "Jamaah"], ["pen", "📅", "Pengajian"], ["rek", "📈", "Rekap"]];
+  $("#app").innerHTML = `
+    <header>
+      <div>
+        <h1>Pengajian Kebon Kopi</h1>
+        <small>Absensi Kehadiran Jamaah</small>
+      </div>
+      <div id="sync-status" class="badge-status" title="${cloudSyncState.detail || ''}">
+        <span class="badge-dot" style="background:${cloudSyncState.status === "online" ? "#6FA47C" : cloudSyncState.status === "offline" ? "#D9A93A" : "#D9705F"}"></span>
+        <span>${cloudSyncState.message}</span>
+      </div>
+    </header>
+    <main id="main"></main>
+    <nav>${tabs.map(t => `<button data-a="pg" data-v="${t[0]}" class="${ui.pg === t[0] ? "on" : ""}"><span>${t[1]}</span>${t[2]}</button>`).join("")}</nav>
+  `;
+  page();
+}
+
+function page() {
+  document.querySelectorAll("nav button").forEach(b => b.classList.toggle("on", b.dataset.v === ui.pg));
+  const main = $("#main");
+  if (!main) return;
+  main.innerHTML = ({ dash, abs, jam, pen, rek })[ui.pg]();
+}
+
+function dash() {
+  const ss = sess(), rs = ss.filter(rec), a = act();
+  const alertHtml = cloudSyncState.status === "error" 
+    ? `<div class="alert-box alert-warning"><b>Perhatian:</b> ${cloudSyncState.detail}</div>` 
+    : "";
+
+  if (!ss.length) {
+    return `${alertHtml}<div class="card">
+      <h2>Selamat datang</h2>
+      <p>Data tersambung ke <b>Firebase (${firebaseConfig.projectId})</b>. Belum ada pengajian yang dibuat. Buat jadwal di menu <b>Pengajian</b>, atau klik tombol di bawah untuk membuat data contoh.</p>
+      <button class="btn" data-a="demo">Isi data contoh</button>
+    </div>`;
+  }
+  const last = rs[0], w = last ? wk(last.d) : wk(ymd(new Date())), m = last ? last.d.slice(0, 7) : "";
+  const sw = stats(S.s.filter(s => wk(s.d) === w), a), sm = stats(S.s.filter(s => s.d.slice(0, 7) === m), a), all = stats(S.s, a);
+  const lj = a.map(j => { const t = stats(S.s, [j]); return { j, t, r: t.t ? t.c.H / t.t : 1 }; }).filter(x => x.t.t >= 2 && x.r < .7).sort((x, y) => x.r - y.r).slice(0, 5);
+
+  return `${alertHtml}<h2>Dashboard</h2><div class="grid">
+    <div class="card stat"><b>${a.length}</b><span>Jamaah aktif (${a.filter(x => x.g === "L").length} L, ${a.filter(x => x.g === "P").length} P)</span></div>
+    <div class="card stat"><b>${ss.length}</b><span>Total pengajian</span></div>
+    <div class="card stat"><b>${all.p}%</b><span>Rata-rata hadir</span></div>
+    <div class="card stat"><b>${last ? stats([last], a).c.H : 0}</b><span>Hadir pengajian terakhir</span></div>
+  </div>
+  <div class="two">
+    <div class="card"><h3>Minggu ini</h3><p class="mut">${wlab(w)}</p>${donut(sw)}</div>
+    <div class="card"><h3>Bulan ini</h3><p class="mut">${m ? mlab(m) : "-"}</p>${donut(sm)}</div>
+  </div>
+  <div class="two">
+    <div class="card"><h3>Pengajian terbaru</h3>${ss.slice(0, 4).map(s => { const t = stats([s], a); return `<div class="item"><div class="nm"><b>${esc(s.n)}</b><br><span class="mut">${fdl(s.d)}</span></div><b>${rec(s) ? t.p + "%" : "belum diisi"}</b></div>`; }).join("")}</div>
+    <div class="card"><h3>Perlu disapa (kehadiran &lt; 70%)</h3>${lj.length ? lj.map(x => `<div class="item"><div class="nm">${esc(x.j.n)}</div><b>${Math.round(x.r * 100)}%</b></div>`).join("") : '<p class="mut">Semua jamaah aktif hadir di atas 70%.</p>'}</div>
+  </div>`;
+}
+
+function abs() {
+  const ss = sess();
+  if (!ss.length) return `<div class="card"><h2>Absensi</h2><p>Buat jadwal pengajian terlebih dahulu di menu <b>Pengajian</b>.</p></div>`;
+  if (!ss.find(s => s.id === ui.sid)) ui.sid = (ss.find(s => s.d <= ymd(new Date())) || ss[0]).id;
+  return `<h2>Absensi</h2><div class="card">
+    <select data-a="sid">${ss.map(s => `<option value="${s.id}" ${s.id === ui.sid ? "selected" : ""}>${esc(s.n)} – ${fd(s.d)}</option>`).join("")}</select>
+    <div class="tabs" style="margin-top:10px">${gtabs()}</div>
+    <div class="row"><input id="q" placeholder="Cari nama jamaah…" value="${esc(ui.q)}" data-a="q"><button class="btn o" data-a="all">Hadir semua</button></div>
+    <p class="mut" id="sum"></p>
+    <div id="lst"></div>
+  </div>`;
+}
+
+function gtabs() {
+  return ["L", "P"].map(g => `<button data-a="g" data-v="${g}" class="${ui.g === g ? "on" : ""}">${g === "L" ? "Bapak-bapak (L)" : "Ibu-ibu (P)"}</button>`).join("");
+}
+
+function lst() {
+  const el = $("#lst");
+  if (!el) return;
+  const a = S.a[ui.sid] || {}, L = act().filter(j => j.g === ui.g), V = L.filter(j => j.n.toLowerCase().includes(ui.q.toLowerCase()));
+  $("#sum").textContent = "Hadir " + L.filter(j => a[j.id] === "H").length + " dari " + L.length + " · belum diisi " + L.filter(j => !a[j.id]).length;
+  el.innerHTML = V.map(j => `<div class="item">
+    <div class="nm">${esc(j.n)}</div>
+    <div class="st">${["H", "I", "S", "A"].map(k => `<button data-a="set" data-j="${j.id}" data-s="${k}" class="${a[j.id] === k ? "on" : ""}" aria-label="${NM[k]}">${k}</button>`).join("")}</div>
+  </div>`).join("") || '<p class="mut">Tidak ada nama yang cocok.</p>';
+}
+
+function jam() {
+  const L = S.j.filter(j => j.g === ui.g);
+  return `<h2>Data Jamaah</h2><div class="card">
+    <div class="tabs">${gtabs()}</div>
+    <div class="row"><input id="nn" placeholder="Nama jamaah baru"><button class="btn" data-a="addj">Tambah Jamaah</button></div>
+    <p class="mut">${L.filter(x => x.on).length} aktif, ${L.filter(x => !x.on).length} diarsipkan</p>
+    ${L.map(j => `<div class="item" style="${j.on ? "" : "opacity:.55"}">
+      <div class="nm">${esc(j.n)}${j.on ? "" : " (arsip)"}</div>
+      <button class="btn o" data-a="arc" data-j="${j.id}">${j.on ? "Arsipkan" : "Aktifkan"}</button>
+      <button class="btn ${ui.del === j.id ? "r" : "o"}" data-a="delj" data-j="${j.id}">${ui.del === j.id ? "Yakin hapus?" : "Hapus"}</button>
+    </div>`).join("")}
+  </div>`;
+}
+
+function pen() {
+  return `<h2>Pengajian</h2>
+  <div class="card">
+    <h3>Tambah Jadwal Pengajian</h3>
+    <div class="row">
+      <input id="pn" placeholder="Nama pengajian (misal: Ahad Pagi / Malam Jumat)">
+      <input id="pd" type="date" value="${ymd(new Date())}">
+    </div>
+    <button class="btn" data-a="addp">Tambah Pengajian</button>
+  </div>
+  <div class="card">
+    <h3>Daftar Pengajian Terdaftar</h3>
+    ${sess().map(s => `<div class="item">
+      <input style="flex:2 1 160px" value="${esc(s.n)}" data-a="ren" data-s="${s.id}">
+      <input style="flex:1 1 130px" type="date" value="${s.d}" data-a="red" data-s="${s.id}">
+      <button class="btn ${ui.del === s.id ? "r" : "o"}" data-a="delp" data-s="${s.id}">${ui.del === s.id ? "Yakin?" : "Hapus"}</button>
+    </div>`).join("") || '<p class="mut">Belum ada pengajian.</p>'}
+  </div>`;
+}
+
+function rek() {
+  const ss = sess(), a = act(), ws = [...new Set(S.s.map(s => wk(s.d)))].sort().reverse(), ms = [...new Set(S.s.map(s => s.d.slice(0, 7)))].sort().reverse();
+  if (!ss.length) return `<div class="card"><h2>Rekap</h2><p>Belum ada data pengajian untuk direkap.</p></div>`;
+  if (!ws.includes(ui.wk)) ui.wk = ws[0];
+  if (!ms.includes(ui.mo)) ui.mo = ms[0];
+  const sw = stats(S.s.filter(s => wk(s.d) === ui.wk), a), sm = stats(S.s.filter(s => s.d.slice(0, 7) === ui.mo), a);
+  return `<h2>Rekapitulasi</h2>
+  <div class="two">
+    <div class="card"><h3>Per minggu</h3><select data-a="wk">${ws.map(w => `<option value="${w}" ${w === ui.wk ? "selected" : ""}>${wlab(w)}</option>`).join("")}</select><div style="margin-top:12px">${donut(sw)}</div></div>
+    <div class="card"><h3>Per bulan</h3><select data-a="mo">${ms.map(m => `<option value="${m}" ${m === ui.mo ? "selected" : ""}>${mlab(m)}</option>`).join("")}</select><div style="margin-top:12px">${donut(sm)}</div></div>
+  </div>
+  <div class="card">
+    <h3>Per pengajian</h3>
+    <div class="scroll"><table><tr><th>Pengajian</th><th>Tanggal</th><th>H</th><th>I</th><th>S</th><th>A</th><th>%</th></tr>
+    ${ss.map(s => { const t = stats([s], a); return `<tr><td>${esc(s.n)}</td><td>${fd(s.d)}</td>${rec(s) ? ["H", "I", "S", "A"].map(k => `<td>${t.c[k]}</td>`).join("") + `<td><b>${t.p}%</b></td>` : '<td colspan="5" class="mut">belum diisi</td>'}</tr>`; }).join("")}
+    </table></div>
+  </div>
+  <div class="card">
+    <h3>Per bulan</h3>
+    <div class="scroll"><table><tr><th>Bulan</th><th>Pengajian</th><th>Hadir</th><th>Izin</th><th>Sakit</th><th>Alpa</th><th>%</th></tr>
+    ${ms.map(m => { const l = S.s.filter(s => s.d.slice(0, 7) === m), t = stats(l, a); return `<tr><td>${mlab(m)}</td><td>${l.length}</td>${["H", "I", "S", "A"].map(k => `<td>${t.c[k]}</td>`).join("")}<td><b>${t.p}%</b></td></tr>`; }).join("")}
+    </table></div>
+  </div>
+  <button class="btn" data-a="csv">Unduh Rekap (CSV untuk Excel)</button>`;
+}
+
+// Download CSV yang kompatibel di semua browser (Chrome, Safari, HP)
+function csv() {
+  const ss = [...S.s].sort((a, b) => a.d > b.d ? 1 : -1), q = t => '"' + String(t).replace(/"/g, '""') + '"';
+  const rows = [["Nama Jamaah", "Kelompok", ...ss.map(s => s.n + " (" + s.d + ")"), "% Hadir"].map(q).join(",")];
+  S.j.forEach(j => {
+    const t = stats(S.s, [j]);
+    rows.push([j.n, j.g === "L" ? "Laki-laki" : "Perempuan", ...ss.map(s => S.a[s.id] && S.a[s.id][j.id] ? NM[S.a[s.id][j.id]] : ""), t.p + "%"].map(q).join(","));
+  });
+  const blob = new Blob(["\ufeff" + rows.join("\n")], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "rekap-absensi-kebon-kopi-" + ymd(new Date()) + ".csv";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+// ==================== EVENT HANDLERS & MUTATIONS ====================
+document.addEventListener("click", e => {
+  const b = e.target.closest("[data-a]");
+  if (!b) return;
+  const a = b.dataset.a;
+
+  if (a === "login") {
+    if ($("#pin").value === PIN) {
+      ui.auth = true;
+      try { sessionStorage.setItem("kk_ok", "1"); } catch (x) {}
+      shell();
+    } else {
+      $("#err").textContent = "PIN salah, silakan coba lagi.";
+    }
+    return;
+  }
+
+  if (a === "pg") {
+    ui.pg = b.dataset.v;
+    ui.del = null;
+    page();
+    scrollTo(0, 0);
+  } else if (a === "g") {
+    ui.g = b.dataset.v;
+    page();
+    lst();
+  } else if (a === "set") {
+    const sid = ui.sid, jid = b.dataset.j, st = b.dataset.s;
+    if (!sid) return;
+    const cur = S.a[sid] = S.a[sid] || {};
+    const nextVal = cur[jid] === st ? null : st;
+    if (nextVal === null) delete cur[jid];
+    else cur[jid] = nextVal;
+    saveLocal();
+    lst();
+
+    // Simpan ke Firestore langsung tanpa prefix nested (aman multi-admin & realtime sync)
+    if (db) {
+      if (nextVal === null) {
+        db.collection("absensi").doc(sid).set({
+          [jid]: firebase.firestore.FieldValue.delete()
+        }, { merge: true }).catch(console.error);
+      } else {
+        db.collection("absensi").doc(sid).set({
+          [jid]: nextVal
+        }, { merge: true }).catch(console.error);
+      }
+    }
+  } else if (a === "all") {
+    const sid = ui.sid;
+    if (!sid) return;
+    const cur = S.a[sid] = S.a[sid] || {};
+    const updates = {};
+    act().filter(j => j.g === ui.g).forEach(j => {
+      cur[j.id] = "H";
+      updates[j.id] = "H";
+    });
+    saveLocal();
+    lst();
+
+    if (db) {
+      db.collection("absensi").doc(sid).set(updates, { merge: true }).catch(console.error);
+    }
+  } else if (a === "addj") {
+    const v = $("#nn").value.trim();
+    if (v) {
+      const newId = "j_" + Date.now();
+      const newMember = { id: newId, n: v, g: ui.g, on: 1, idx: Date.now() };
+      S.j.push(newMember);
+      saveLocal();
+      page();
+      if (db) db.collection("jamaah").doc(newId).set(newMember).catch(console.error);
+    }
+  } else if (a === "arc") {
+    const j = S.j.find(x => x.id === b.dataset.j);
+    if (j) {
+      j.on = j.on ? 0 : 1;
+      saveLocal();
+      page();
+      if (db) db.collection("jamaah").doc(j.id).update({ on: j.on }).catch(console.error);
+    }
+  } else if (a === "delj") {
+    if (ui.del === b.dataset.j) {
+      const delId = ui.del;
+      S.j = S.j.filter(x => x.id !== delId);
+      ui.del = null;
+      saveLocal();
+      page();
+      if (db) db.collection("jamaah").doc(delId).delete().catch(console.error);
+    } else {
+      ui.del = b.dataset.j;
+      page();
+    }
+  } else if (a === "addp") {
+    const n = $("#pn").value.trim(), d = $("#pd").value;
+    if (n && d) {
+      const newId = "s_" + Date.now();
+      const newSession = { id: newId, n, d };
+      S.s.push(newSession);
+      ui.sid = newId;
+      saveLocal();
+      page();
+      if (db) db.collection("pengajian").doc(newId).set(newSession).catch(console.error);
+    }
+  } else if (a === "delp") {
+    if (ui.del === b.dataset.s) {
+      const delId = ui.del;
+      S.s = S.s.filter(x => x.id !== delId);
+      delete S.a[delId];
+      ui.del = null;
+      saveLocal();
+      page();
+      if (db) {
+        db.collection("pengajian").doc(delId).delete().catch(console.error);
+        db.collection("absensi").doc(delId).delete().catch(console.error);
+      }
+    } else {
+      ui.del = b.dataset.s;
+      page();
+    }
+  } else if (a === "demo") {
+    const names = ["Pengajian Ahad Pagi", "Kajian Kitab Selasa", "Pengajian Malam Jumat"], t = new Date();
+    for (let i = 0; i < 6; i++) {
+      const d = new Date(t);
+      d.setDate(t.getDate() - i * 3 - 1);
+      const id = "demo_" + Date.now() + "_" + i;
+      const session = { id, n: names[i % 3], d: ymd(d) };
+      S.s.push(session);
+      const sessionAtt = {};
+      act().forEach(j => {
+        const r = Math.random();
+        sessionAtt[j.id] = r < .75 ? "H" : r < .85 ? "I" : r < .92 ? "S" : "A";
+      });
+      S.a[id] = sessionAtt;
+      if (db) {
+        db.collection("pengajian").doc(id).set(session);
+        db.collection("absensi").doc(id).set(sessionAtt);
+      }
+    }
+    saveLocal();
+    page();
+  } else if (a === "csv") {
+    csv();
+  }
+});
+
+document.addEventListener("input", e => {
+  const b = e.target, a = b.dataset.a;
+  if (a === "q") { ui.q = b.value; lst(); }
+});
+
+document.addEventListener("change", e => {
+  const b = e.target, a = b.dataset.a;
+  if (a === "sid") { ui.sid = b.value; lst(); }
+  else if (a === "wk") { ui.wk = b.value; page(); }
+  else if (a === "mo") { ui.mo = b.value; page(); }
+  else if (a === "ren" || a === "red") {
+    const s = S.s.find(x => x.id === b.dataset.s);
+    if (!s) return;
+    if (a === "ren" && b.value.trim()) s.n = b.value.trim();
+    if (a === "red" && b.value) s.d = b.value;
+    saveLocal();
+    if (db) db.collection("pengajian").doc(s.id).update({ n: s.n, d: s.d }).catch(console.error);
+  }
+});
+
+const _p = page;
+page = function() { _p(); lst(); };
+
+// Inisialisasi awal
+setup();
+initFirestoreSync();
+</script>
+</body>
+</html>
